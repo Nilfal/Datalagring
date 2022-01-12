@@ -1,0 +1,132 @@
+
+/*  1 	*/
+
+SELECT EXTRACT (year from time_lesson) AS Year, EXTRACT (month from time_lesson)
+AS Month,COUNT(lesson_id) AS number_of_lessons,lesson_type      
+FROM lesson 
+WHERE EXTRACT (year FROM time_lesson) = 2022
+GROUP BY EXTRACT (year from time_lesson),EXTRACT (month from time_lesson),lesson_type
+ORDER BY EXTRACT (month from time_lesson);
+
+
+
+/* 2 */
+
+
+SELECT AVG(count) FROM ( SELECT count(lesson_id) AS count FROM lesson
+WHERE EXTRACT (year FROM time_lesson)=2022 GROUP BY EXTRACT(month from time_lesson)) AS a;
+
+
+
+
+
+/*	List all instructors who has given more than a specific number of lessons during the current month. Sum all lessons, independent of type, and sort the result by the number of given lessons. This query will be used to find instructors risking to work too much, and will be executed daily. 	*/ 
+
+
+/*	3	*/
+SELECT lesson.instructor_id_0,person.first_name, person.last_name, COUNT (*)
+FROM lesson
+Join instructor
+ON lesson.instructor_id_0 = instructor.instructor_id
+JOIN person
+ON instructor.instructor_id = person.person_id
+WHERE EXTRACT (month FROM time_lesson) = 01
+GROUP BY instructor_id_0, person.first_name, person.last_name
+HAVING COUNT (*) > 2;
+
+
+
+
+/* 	 4	*/
+
+
+SELECT lesson_id, time_lesson, lesson_type, instrument, max_cap , min_cap, current_s ,
+CASE
+WHEN(max_cap = lesson.current_s) then 'Ensemble is full'
+WHEN(max_cap > lesson.current_s) then 'Ensemble open'
+END AS open_seats,
+CASE
+WHEN ((20 - CAST(lesson.current_s AS int))= 0)  then 'no seats left'
+WHEN ((CAST(max_cap AS int)  - CAST(lesson.current_s AS int) ) < 3) then 'cupple of seats left'
+WHEN ((CAST(max_cap AS int)  - CAST(lesson.current_s AS int)) > 2 )   then 'alot of seats left'
+END AS open_spots
+FROM lesson
+WHERE lesson_type = 'Ensembles' AND (time_lesson BETWEEN current_date AND current_date + interval '7 day')
+GROUP BY lesson_type, time_lesson, lesson_id
+ORDER BY time_lesson, instrument;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* JAVA SQL   1 */
+
+
+SELECT instrument_rent.instrument_id, instrument_rent.instrument_name,instrument_rent.price_id,instrument_rent.brand, price.amount,
+ CASE
+ WHEN(is_rented = '1') THEN 'booked'
+ WHEN(is_rented = '0') THEN 'bookable'
+ END AS available,
+ CASE
+ WHEN (person.first_name = '0') THEN 'unbooked'
+ WHEN (person.first_name != '0') THEN person.first_name
+ END AS booked_by
+ FROM instrument_rent
+ JOIN price
+ ON instrument_rent.price_id = price.price_id
+ JOIN student
+ ON instrument_rent.student_id_0 = student.student_id
+ JOIN person
+  ON student.person_id = person.person_id
+WHERE is_rented = '0'AND instrument_name ='Base';
+
+
+
+
+/* JAVA SQL 2*/
+/*	RENT AN INSTRUMENT	*/
+UPDATE instrument_rent
+SET student_id_0=10, is_rented=1
+WHERE instrument_id ='8';
+
+/*	CHECK SO STUDENT DONT HAVE MORE THEN 2 RENTED INSTRUMENTS	*/
+
+SELECT  COUNT(*)
+FROM instrument_rent
+WHERE student_id_0 = '?'
+GROUP BY instrument_rent.student_id_0
+
+
+/*JAVA SQL 3*/
+UPDATE instrument_rent
+SET student_id_0= 0, is_rented= '0', is_terminated = 1
+WHERE instrument_id ='8';
