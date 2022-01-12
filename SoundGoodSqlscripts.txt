@@ -107,7 +107,7 @@ SELECT instrument_rent.instrument_id, instrument_rent.instrument_name,instrument
  ON instrument_rent.student_id_0 = student.student_id
  JOIN person
   ON student.person_id = person.person_id
-WHERE is_rented = '0'AND instrument_name ='Base';
+WHERE is_rented = '0'AND instrument_name ='?';
 
 
 
@@ -116,7 +116,7 @@ WHERE is_rented = '0'AND instrument_name ='Base';
 /*	RENT AN INSTRUMENT	*/
 UPDATE instrument_rent
 SET student_id_0=10, is_rented=1
-WHERE instrument_id ='8';
+WHERE instrument_id ='?';
 
 /*	CHECK SO STUDENT DONT HAVE MORE THEN 2 RENTED INSTRUMENTS	*/
 
