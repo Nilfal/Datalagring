@@ -40,10 +40,10 @@ public class BasicJdbc {
   private static PreparedStatement rentInstrument;
   private static PreparedStatement findInsturment;
   private static PreparedStatement toManyInstruments;
-
+  private static Connection connection;
   private void accessDB() {
-    try (Connection connection = createConnection()) {
-   //   createTable(connection);
+    try {
+      createConnection();
       prepareStatements(connection);
       listAllRows2();
 
@@ -51,13 +51,20 @@ public class BasicJdbc {
       exc.printStackTrace();
     }
   }
+  public void commit() throws SQLException {
+    try {
+      connection.commit();
+    } catch (SQLException e) {
+     System.out.println(e);
+    }
+  }
 /**
  * method to connect with the databse.
  * the database chosen at this point is mdb.
  **/
-  private static Connection createConnection() throws SQLException, ClassNotFoundException {
+  private static void createConnection() throws SQLException, ClassNotFoundException {
     Class.forName("org.postgresql.Driver");
-    return DriverManager.getConnection("jdbc:postgresql://localhost:5432/mdb",
+    connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/mdb",
       "postgres", "nilsnils");
 
   }
@@ -166,7 +173,7 @@ public class BasicJdbc {
             " WHERE " + " is_rented = '0'"+ "AND" + " instrument_name = ?");
   }
 
-  public static void main(String[] args) {
+  public static void  main(String[] args) throws SQLException {
 
     new BasicJdbc().accessDB();
     Scanner scan = new Scanner(System.in);
@@ -185,21 +192,24 @@ public class BasicJdbc {
 
         case 1:
           System.out.println("Here is the instruments that is available");
-          try (Connection connection = createConnection()) {
+          try  {
+            createConnection();
             System.out.println("What instrument are you looking for?");
             String select = scan1.nextLine();
             prepareStatements(connection);
             findInstrumentByType.setString(1, select);
             findInstrumentByType.executeQuery();
           listAllRows();
-          } catch (SQLException | ClassNotFoundException exc) {
+          }
+          catch (SQLException | ClassNotFoundException exc) {
             exc.printStackTrace();
           }
           break;
 
         case 2:
           System.out.println("What instrument would you like to enter, please enter student id then instrument id.");
-          try (Connection connection = createConnection()) {
+          try  {
+            createConnection();
             String select = scan1.nextLine();
             String select2 = scan1.nextLine();
             prepareStatements(connection);
@@ -211,23 +221,29 @@ public class BasicJdbc {
            int temp = result.getInt(1);
            if ( temp < 2) {
              rentInstrument.executeUpdate();
-             System.out.println(" you have no rented Instruemtn with id :"+ select2);
+             System.out.println(" you have rented Instruemtn with id :"+ select2);
+             connection.commit();
            }else{
+
            System.out.println("RENTED TO MANY");}
           } catch (SQLException | ClassNotFoundException exc) {
             exc.printStackTrace();
+            connection.rollback();
           }
           break;
         case 3:
           System.out.println("Termintae an rental agremment, insert the instrument id that you would like to terminate.");
-          try (Connection connection = createConnection()) {
+          try  {
+           createConnection();
             String select2 = scan1.nextLine();
             prepareStatements(connection);
             terminateRental.setString(1, select2);
             terminateRental.executeUpdate();
             listAllRows2();
+            connection.commit();
           } catch (SQLException | ClassNotFoundException exc) {
             exc.printStackTrace();
+            connection.rollback();
           }
           break;
 
