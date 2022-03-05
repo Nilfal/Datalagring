@@ -9,7 +9,9 @@ WHERE EXTRACT (year FROM time_lesson) = 2022
 GROUP BY EXTRACT (year from time_lesson),EXTRACT (month from time_lesson),lesson_type
 ORDER BY EXTRACT (month from time_lesson);
 
-
+/* 1 see view**/
+SELECT *
+FROM List_num_lesson_per_month AS
 
 /* 2 */
 
@@ -18,8 +20,9 @@ CREATE VIEW List_avg_lesson_per_month AS
 SELECT AVG(count) FROM ( SELECT count(lesson_id) AS count FROM lesson
 WHERE EXTRACT (year FROM time_lesson)=2022 GROUP BY EXTRACT(month from time_lesson)) AS a;
 
-
-
+/*SEE view 2*/
+SELECT *
+FROM List_avg_lesson_per_month;
 
 
 /*	List all instructors who has given more than a specific number of lessons during the current month. Sum all lessons, independent of type, and sort the result by the number of given lessons. This query will be used to find instructors risking to work too much, and will be executed daily. 	*/ 
@@ -37,7 +40,9 @@ WHERE EXTRACT (month FROM time_lesson) = 01
 GROUP BY instructor_id_0, person.first_name, person.last_name
 HAVING COUNT (*) > 2;
 
-
+/*SEE view 3*/
+SELECT *
+FROM List_lessons_per_instructor;
 
 
 /* 	 4	*/
@@ -61,7 +66,9 @@ ORDER BY time_lesson, instrument;
 
 
 
-
+/*SEE view 4*/
+SELECT *
+FROM ensembles_next_week;
 
 
 
