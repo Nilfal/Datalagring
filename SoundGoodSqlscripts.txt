@@ -1,6 +1,7 @@
 
 /*  1 	*/
 
+CREATE VIEW List_num_lesson_per_month AS
 SELECT EXTRACT (year from time_lesson) AS Year, EXTRACT (month from time_lesson)
 AS Month,COUNT(lesson_id) AS number_of_lessons,lesson_type      
 FROM lesson 
@@ -13,6 +14,7 @@ ORDER BY EXTRACT (month from time_lesson);
 /* 2 */
 
 
+CREATE VIEW List_avg_lesson_per_month AS
 SELECT AVG(count) FROM ( SELECT count(lesson_id) AS count FROM lesson
 WHERE EXTRACT (year FROM time_lesson)=2022 GROUP BY EXTRACT(month from time_lesson)) AS a;
 
@@ -24,6 +26,7 @@ WHERE EXTRACT (year FROM time_lesson)=2022 GROUP BY EXTRACT(month from time_less
 
 
 /*	3	*/
+CREATE materialized view List_lessons_per_instructor AS
 SELECT lesson.instructor_id_0,person.first_name, person.last_name, COUNT (*)
 FROM lesson
 Join instructor
@@ -40,6 +43,7 @@ HAVING COUNT (*) > 2;
 /* 	 4	*/
 
 
+create materialized view ensembles_next_week as
 SELECT lesson_id, time_lesson, lesson_type, instrument, max_cap , min_cap, current_s ,
 CASE
 WHEN(max_cap = lesson.current_s) then 'Ensemble is full'
